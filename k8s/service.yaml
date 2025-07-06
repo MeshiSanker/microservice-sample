@@ -8,7 +8,8 @@ spec:
   selector:
     app: python-metrics-app
   ports:
-    - protocol: TCP
+    - name: http-metrics
+      protocol: TCP
       port: 5000
       targetPort: 5000
   type: ClusterIP 

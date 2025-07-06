@@ -80,6 +80,27 @@ def import_image_to_cluster():
     import_command = ["k3d", "image", "import", f"{IMAGE_NAME}:latest", "-c", CLUSTER_NAME]
     run_command(import_command)
 
+def deploy_monitoring_stack():
+    """Deploys the kube-prometheus-stack using Helm."""
+    print("\n--- 4. Deploying Monitoring Stack (Prometheus & Grafana) ---")
+    
+    print("Adding Prometheus Helm repository...")
+    run_command(["helm", "repo", "add", "prometheus-community", "https://prometheus-community.github.io/helm-charts"], check=False)
+    
+    print("Updating Helm repositories...")
+    run_command(["helm", "repo", "update"])
+    
+    print("Installing or upgrading kube-prometheus-stack...")
+    # This command is idempotent. It will install if not present, or upgrade if it is.
+    # We also need to tell Prometheus to look for ServiceMonitors with the label 'release: prometheus'
+    helm_install_command = [
+        "helm", "upgrade", "--install", "prometheus", "prometheus-community/kube-prometheus-stack",
+        "--namespace", NAMESPACE,
+        "--set", "prometheus.prometheusSpec.serviceMonitorSelector.matchLabels.release=prometheus"
+    ]
+    run_command(helm_install_command)
+    print("✅ Monitoring stack deployed successfully.")
+    
 def deploy_application():
     """Creates a namespace and applies Kubernetes manifests to deploy the app."""
     print("\n--- 3. Deploying Application to Kubernetes ---")
@@ -94,7 +115,7 @@ def deploy_application():
     print(f"Applying Kubernetes manifests from '{K8S_MANIFESTS_PATH}'...")
     run_command(["kubectl", "apply", "-f", K8S_MANIFESTS_PATH, "-n", NAMESPACE])
     print("✅ Application deployed successfully.")
-    
+
 def cleanup():
     """Deletes the k3d cluster and associated resources."""
     print("\n--- Cleaning up environment ---")
@@ -113,6 +134,7 @@ def main():
             check_prerequisites()
             create_k3d_cluster()
             import_image_to_cluster()
+            deploy_monitoring_stack()
             deploy_application()
             print("\n🎉 Deployment script finished successfully! 🎉")
             print("To clean up the environment, run: python deploy.py cleanup")

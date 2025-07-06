@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: python-metrics-app-monitor
+  labels:
+    # This label is important and often used by the Prometheus Operator to discover ServiceMonitors.
+    release: prometheus 
+spec:
+  selector:
+    matchLabels:
+      # This selector tells the ServiceMonitor to target services with this label.
+      app: python-metrics-app
+  endpoints:
+  - port: http-metrics
+    path: /metrics
+    interval: 15s 
