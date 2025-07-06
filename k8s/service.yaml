@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-metrics-app
+  labels:
+    app: python-metrics-app
+spec:
+  selector:
+    app: python-metrics-app
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: ClusterIP 

@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-metrics-app
+  labels:
+    app: python-metrics-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: python-metrics-app
+  template:
+    metadata:
+      labels:
+        app: python-metrics-app
+    spec:
+      containers:
+      - name: python-metrics-app
+        image: python-metrics-app:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000 
