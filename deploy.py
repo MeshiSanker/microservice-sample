@@ -74,6 +74,13 @@ def create_k3d_cluster():
     run_command(create_command)
     print(f"✅ Cluster '{CLUSTER_NAME}' created.")
 
+def build_docker_image():
+    """Builds the Docker image for the application."""
+    print("\n--- 2. Building Docker Image ---")
+    build_command = ["docker", "build", "-t", f"{IMAGE_NAME}:latest", "."]
+    run_command(build_command)
+    print(f"✅ Docker image '{IMAGE_NAME}:latest' built successfully.")
+
 def import_image_to_cluster():
     """Imports the local Docker image directly into the k3d cluster nodes."""
     print("\n--- 2. Importing Docker Image into k3d Cluster ---")
@@ -100,7 +107,7 @@ def deploy_monitoring_stack():
     ]
     run_command(helm_install_command)
     print("✅ Monitoring stack deployed successfully.")
-    
+
 def deploy_application():
     """Creates a namespace and applies Kubernetes manifests to deploy the app."""
     print("\n--- 3. Deploying Application to Kubernetes ---")
@@ -133,11 +140,17 @@ def main():
         try:
             check_prerequisites()
             create_k3d_cluster()
+            build_docker_image()  # Add the new build step
             import_image_to_cluster()
             deploy_monitoring_stack()
             deploy_application()
             print("\n🎉 Deployment script finished successfully! 🎉")
-            print("To clean up the environment, run: python deploy.py cleanup")
+            print("\n--- Accessing Grafana ---")
+            print("Grafana is accessible via kubectl port-forward. Run the following command in a \n    separate terminal and keep it running:")
+            print(f"kubectl port-forward svc/prometheus-grafana 3000:80 -n {NAMESPACE}")
+            print(f"Then, open your browser to: http://localhost:3000")
+            print("Default Grafana credentials: Username=admin, Password=prom-operator")
+            print("\nTo clean up the environment, run: python deploy.py cleanup")
         except SystemExit as e:
             print(f"\nScript exited with code {e.code}")
         except Exception as e:

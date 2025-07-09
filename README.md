@@ -47,7 +47,13 @@ kubectl port-forward svc/prometheus-kube-prometheus-prometheus 9090:9090 -n moni
 Then navigate to [http://localhost:9090](http://localhost:9090) in your browser.
 
 ### Accessing Grafana
-After successful deployment, the `deploy.py` script will output the specific NodePort for Grafana. You can then access it directly via `http://localhost:<NODE_PORT>`.
+After successful deployment, you can access Grafana using `kubectl port-forward`. Run the following command in a **separate terminal** and keep it running:
+
+```bash
+kubectl port-forward svc/prometheus-grafana 3000:80 -n monitoring-app
+```
+
+Then, open your web browser to [http://localhost:3000](http://localhost:3000).
 
 The default Grafana login credentials are:
 *   **Username**: `admin`
